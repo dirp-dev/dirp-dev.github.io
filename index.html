@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Directory Predicates — Enforceable Software Engineering Conventions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── CSS Variables / Themes ── */
+    :root {
+      --bg:          #F7FAFD;
+      --bg-card:     #FFFFFF;
+      --bg-card-alt: #EEF4FB;
+      --bg-code:     #E8F1F8;
+      --text:        #0F1C2E;
+      --text-muted:  #52697D;
+      --text-faint:  #94A9BC;
+      --accent:      #0EA5E9;
+      --accent-soft: #E0F2FE;
+      --accent-border: #7DD3FC;
+      --border:      #D4E3F0;
+      --border-strong: #BACBD9;
+      --shadow:      rgba(14,41,64,0.06);
+      --shadow-md:   rgba(14,41,64,0.12);
+      --highlight:   #BFDBFE;
+      --highlight-code: #BFDBFE;
+      --green:       #16A34A;
+      --green-soft:  #DCFCE7;
+      --red:         #DC2626;
+      --blue:        #0EA5E9;
+      --blue-dark:   #0284C7;
+    }
+    [data-theme="dark"] {
+      --bg:          #0A1220;
+      --bg-card:     #111C2E;
+      --bg-card-alt: #162033;
+      --bg-code:     #1A2840;
+      --text:        #E2EBF4;
+      --text-muted:  #8BA4BC;
+      --text-faint:  #4D6A82;
+      --accent:      #38BDF8;
+      --accent-soft: #0C2D42;
+      --accent-border: #0369A1;
+      --border:      #1E3044;
+      --border-strong: #284058;
+      --shadow:      rgba(0,0,0,0.4);
+      --shadow-md:   rgba(0,0,0,0.55);
+      --highlight:   #1E3F64;
+      --highlight-code: #1E3F64;
+      --green:       #22C55E;
+      --green-soft:  #0F2B18;
+      --red:         #F87171;
+      --blue:        #38BDF8;
+      --blue-dark:   #0EA5E9;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-brand {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-right: auto;
+      text-decoration: none;
+    }
+    .nav-brand em { font-style: normal; color: var(--blue); }
+    .nav-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .nav-btn.nav-github { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .nav-btn.nav-github:hover { opacity: 0.85; }
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.15s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+    /* ── Section wrapper ── */
+    .section { padding: 80px 24px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    h1, h2, h3 { letter-spacing: -0.02em; line-height: 1.2; }
+
+    /* ── Hero ── */
+    #hero {
+      padding: 96px 24px 80px;
+      text-align: center;
+    }
+    #hero h1 {
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    #hero h1 em { font-style: normal; color: var(--blue); }
+    .hero-tagline {
+      font-size: clamp(16px, 2.2vw, 20px);
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto 40px;
+    }
+    .hero-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin: 0 auto 48px;
+      line-height: 1.8;
+    }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      padding: 12px 24px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary {
+      padding: 12px 24px;
+      border-radius: 10px;
+      background: var(--bg-card);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 500;
+      border: 1px solid var(--border-strong);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Illustration ── */
+    #illustration { padding: 0 24px 80px; }
+    .demo-card {
+      max-width: 1020px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 0 0 4px var(--accent-soft), 0 4px 24px var(--shadow-md);
+      overflow: hidden;
+    }
+    .demo-body {
+      padding: 24px 24px 20px;
+      overflow-x: auto;
+      background: linear-gradient(160deg, color-mix(in srgb, var(--accent-soft) 60%, var(--bg-card)), var(--bg-card));
+    }
+    /* Embedded SVG from dp-demo2 */
+    #demo-svg-wrapper svg {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    /* Animation styles from dp-demo2 */
+    @keyframes dp2-fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .dp2-cell-shape, .dp2-cell-arrow {
+      opacity: 0;
+      animation: dp2-fadeUp 0.45s ease forwards;
+    }
+    @keyframes dp2-flowDash {
+      to { stroke-dashoffset: 0; }
+    }
+    .dp2-cell-arrow path[fill="none"] {
+      animation: dp2-flowDash var(--flow-dur, 0.8s) ease forwards;
+      animation-delay: var(--flow-delay, 0s);
+    }
+    @keyframes dp2-codingPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.6; }
+    }
+    .dp2-coding-pulse rect {
+      animation: dp2-codingPulse 1.8s ease-in-out infinite !important;
+      animation-delay: var(--delay, 0s) !important;
+    }
+
+    /* ── Demo dark-mode theming ── */
+    [data-theme="dark"] #demo-svg-wrapper rect[fill="#FFFBF0"] { fill: #2A1E06; }
+    [data-theme="dark"] #demo-svg-wrapper rect[fill="#EEF2FF"] { fill: #12152E; }
+    [data-theme="dark"] #demo-svg-wrapper rect[fill="#F5F3FF"] { fill: #1C1530; }
+    [data-theme="dark"] #demo-svg-wrapper rect[fill="#ECFDF5"] { fill: #0C2018; }
+    [data-theme="dark"] #demo-svg-wrapper rect[fill="#DCFCE7"] { fill: #091C10; }
+    [data-theme="dark"] #demo-svg-wrapper rect[fill="#F0F9FF"] { fill: #061C30; }
+    [data-theme="dark"] #demo-svg-wrapper rect[fill="#E0F2FE"] { fill: #061820; }
+    [data-theme="dark"] #demo-svg-wrapper rect[fill="#F3F0FF"] { fill: #161028; }
+    [data-theme="dark"] #demo-svg-wrapper text { fill: #CBD9E8 !important; }
+    [data-theme="dark"] #demo-svg-wrapper foreignObject div,
+    [data-theme="dark"] #demo-svg-wrapper foreignObject span {
+      color: #CBD9E8 !important;
+      background-color: transparent !important;
+    }
+
+    /* ── Features ── */
+    #features { background: var(--bg-card-alt); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      box-shadow: 0 8px 32px var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .feature-steps { list-style: none; }
+    .feature-steps li {
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 6px 0;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+    }
+    .feature-steps li:first-child { border-top: none; }
+    .step-num {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    code {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.88em;
+      background: var(--bg-code);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    /* ── Predicate Example ── */
+    #example {}
+    .example-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 48px;
+      box-shadow: 0 4px 24px var(--shadow);
+    }
+    @media (max-width: 768px) {
+      .example-layout { grid-template-columns: 1fr; }
+    }
+    .example-left {
+      padding: 32px;
+      border-right: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .example-left h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+    }
+    .dp-field {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+    .dp-field:hover, .dp-field.active {
+      background: var(--highlight);
+      border-color: var(--accent-border);
+    }
+    .dp-field-name {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 3px;
+    }
+    .dp-field-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .dp-field .badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      margin-left: 6px;
+      font-family: 'Source Code Pro', monospace;
+    }
+    .example-right {
+      background: var(--bg-code);
+      padding: 24px 20px 24px 24px;
+      overflow-x: auto;
+    }
+    .example-right h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+    }
+    .code-block {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 11.5px;
+      line-height: 1.8;
+      color: var(--text);
+      display: table;
+      width: 100%;
+    }
+    .code-line {
+      display: table-row;
+    }
+    .line-num {
+      display: table-cell;
+      user-select: none;
+      -webkit-user-select: none;
+      text-align: right;
+      padding-right: 16px;
+      min-width: 32px;
+      color: var(--text-faint);
+      font-size: 11.5px;
+    }
+    .line-content {
+      display: table-cell;
+      white-space: pre;
+    }
+    .code-span {
+      border-radius: 3px;
+      transition: background 0.15s;
+      cursor: default;
+    }
+    .code-span:hover, .code-span.active {
+      background: var(--highlight-code);
+      outline: 2px solid var(--accent-border);
+    }
+    .code-line.code-span:hover, .code-line.code-span.active {
+      outline: none;
+      border-radius: 0;
+      border-left: 3px solid var(--accent);
+    }
+    .code-line:not(.code-span) {
+      border-left: 3px solid transparent;
+    }
+    /* Syntax colors */
+    .tok-kw   { color: #7C3AED; }
+    [data-theme="dark"] .tok-kw { color: #A78BFA; }
+    .tok-attr { color: #0369A1; }
+    [data-theme="dark"] .tok-attr { color: #7DD3FC; }
+    .tok-str  { color: #16A34A; }
+    [data-theme="dark"] .tok-str { color: #4ADE80; }
+    .tok-num  { color: #2563EB; }
+    [data-theme="dark"] .tok-num { color: #60A5FA; }
+    .tok-fn   { color: #0891B2; }
+    [data-theme="dark"] .tok-fn { color: #22D3EE; }
+    .tok-cm   { color: var(--text-muted); font-style: italic; }
+    .tok-mac  { color: #9333EA; }
+    [data-theme="dark"] .tok-mac { color: #C084FC; }
+
+    /* ── Quick Start ── */
+    #quick-start { background: var(--bg-card-alt); }
+    .install-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-code);
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin: 32px 0 40px;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .install-box .prompt { color: var(--text-faint); flex-shrink: 0; }
+    .install-cmd { flex: 1; overflow-x: auto; white-space: nowrap; }
+    .copy-btn {
+      flex-shrink: 0;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+    /* Tabs */
+    .tabs-header {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 0;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.15s;
+      border-radius: 6px 6px 0 0;
+    }
+    .tab-btn:hover { color: var(--text); background: var(--bg-card); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--bg-card); }
+    .tab-panel {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 32px;
+    }
+    .tab-panel.active { display: block; }
+    .tab-intro {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      max-width: 600px;
+      line-height: 1.7;
+    }
+    .cmd-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .flags-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    .flags-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: var(--bg-card-alt);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .flags-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+    .flags-table tr:last-child td { border-bottom: none; }
+    .flags-table td:first-child { font-family: 'Source Code Pro', monospace; font-size: 12px; color: var(--accent); }
+
+    /* Agent sub-menu */
+    .agents-layout { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .agents-sidebar {
+      width: 180px;
+      flex-shrink: 0;
+      background: var(--bg-card-alt);
+      border-right: 1px solid var(--border);
+    }
+    .agent-item {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .agent-item:last-child { border-bottom: none; }
+    .agents-content {
+      flex: 1;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 200px;
+    }
+    .coming-soon-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 100px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--accent-border);
+      margin-bottom: 12px;
+    }
+    .agents-content p { font-size: 13px; color: var(--text-faint); }
+
+    /* Output format box */
+    .output-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 12px;
+      color: var(--text);
+      white-space: pre;
+      overflow-x: auto;
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+    .out-pass { color: var(--green); }
+    .out-fail { color: var(--red); }
+    .out-key  { color: var(--accent); }
+
+    /* ── Reveal animations ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 40px 24px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-faint);
+    }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#"><em>dirp</em> · Directory Predicates</a>
+    <a class="nav-btn nav-github" href="https://github.com/dirp-dev/dirp" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+    <a class="nav-btn" href="#quick-start">Quick Start</a>
+    <a class="nav-btn" href="#example">Example</a>
+    <button class="theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section id="hero">
+  <h1>Directory <em>Predicates</em></h1>
+  <p class="hero-tagline">Enforceable Software Engineering Conventions for Coding Agents.</p>
+  <p class="hero-desc">
+    Composable, atomic predicates that capture programming conventions at the directory level —
+    a shared specification language between humans and coding agents. Machine-checkable, actionable,
+    and easy to integrate into any agent loop. Reliably improve output quality with clear,
+    enforceable guarantees on the final deliverable.
+  </p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="#quick-start">Get Started</a>
+    <a class="btn-secondary" href="#example">See an Example</a>
+    <a class="btn-secondary" href="https://github.com/dirp-dev/dirp" target="_blank" rel="noopener">View on GitHub</a>
+  </div>
+</section>
+
+<!-- ── Illustration ── -->
+<section id="illustration">
+  <div class="demo-card reveal">
+    <div class="demo-body">
+      <div id="demo-svg-wrapper">
+<svg xmlns="http://www.w3.org/2000/svg" style="background: transparent;" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="963px" height="506px" viewBox="0 0 1203 633"><defs><style type="text/css">@import url(https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500);&#xa;</style></defs><g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-0" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-0"><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-1" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-1"><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-2" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-2"><g><path d="M 601 71 L 672.76 71" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 678.76 71 L 670.76 75 L 672.76 71 L 670.76 67 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-3" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-3"><g><path d="M 160.84 140.72 L 160.84 211 L 172.76 211" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 178.76 211 L 170.76 215 L 172.76 211 L 170.76 207 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-4" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-4"><g><path d="M 141.16 141.42 L 141.16 321 L 172.76 321" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 178.76 321 L 170.76 325 L 172.76 321 L 170.76 317 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-5" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-5"><g><rect x="121" y="1" width="480" height="140" fill="#FFFBF0" stroke="#D97706" stroke-width="2" pointer-events="all" style="" rx="12" ry="12"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 462px; height: 1px; padding-top: 71px; margin-left: 131px;"><div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">Build a personal blogging platform with full-stack implementation, supporting post creation, commenting, and AI-powered site-wide search and interaction. Use TypeScript for the frontend and Python for the backend... </div></div></div></foreignObject><text x="131" y="77" fill="#000000" font-family="Georgia" font-size="20px">Build a personal blogging platform with full-s...</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-6" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-6"><g><path d="M 81 71 L 112.76 71" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 118.76 71 L 110.76 75 L 112.76 71 L 110.76 67 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-7" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-7"><g><rect x="1" y="41" width="80" height="60" fill="#EEF2FF" stroke="#6366F1" stroke-width="2" pointer-events="all" style="" rx="14" ry="14"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 62px; height: 1px; padding-top: 71px; margin-left: 10px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">User</div></div></div></foreignObject><text x="41" y="77" fill="#000000" font-family="Georgia" font-size="20px" text-anchor="middle">User</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-8" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-8"><g><rect x="681" y="41" width="80" height="60" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2" pointer-events="all" style="" rx="14" ry="14"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 62px; height: 1px; padding-top: 71px; margin-left: 690px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">Coding Agent</div></div></div></foreignObject><text x="721" y="77" fill="#000000" font-family="Georgia" font-size="20px" text-anchor="middle">Coding...</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-9" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-9"><g><rect x="841" y="1" width="200" height="140" fill="#ECFDF5" stroke="#10B981" stroke-width="2" pointer-events="all" style="" rx="12" ry="12"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe center; width: 182px; height: 1px; padding-top: 16px; margin-left: 850px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">Generated Repo</div></div></div></foreignObject><text x="941" y="36" fill="#000000" font-family="Georgia" font-size="20px" text-anchor="middle">Generated Repo</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-10" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-10"><g><rect x="851" y="31" width="180" height="120" fill="none" stroke="none" pointer-events="all"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 162px; height: 1px; padding-top: 46px; margin-left: 861px;"><div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; "><div style="display: inline-block; font-size: 15px; font-family: 'Source Code Pro'; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; "><font><span>┌ my_blog/</span></font><div><font><span>├─<span style="background-color: transparent; color: rgb(0, 0, 0);">─ </span><span style="background-color: transparent; color: rgb(0, 0, 0);">frontend/</span></span></font></div><div><font><span>├─<span style="background-color: transparent; color: rgb(0, 0, 0);">─ backend/</span></span></font></div><div><font><span>├<span style="background-color: transparent; color: rgb(0, 0, 0);"></span><span style="background-color: transparent; color: rgb(0, 0, 0);">─</span><span style="background-color: transparent; color: rgb(0, 0, 0);">─ readme.md</span></span></font></div><div><font><span><span style="background-color: transparent;">└</span><span style="background-color: transparent; color: rgb(0, 0, 0);">─</span><span style="background-color: transparent; color: rgb(0, 0, 0);">─ ...</span></span></font></div><div><span style="background-color: transparent; color: rgb(0, 0, 0);"><br /></span></div></div></div></div></foreignObject><text x="861" y="61" fill="#000000" font-family="'Source Code Pro'" font-size="15px">┌ my_blog/...</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-11" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-11"><g><path d="M 761 71 L 832.76 71" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 838.76 71 L 830.76 75 L 832.76 71 L 830.76 67 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-12" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-12"><g><rect x="971" y="51" width="80" height="65" fill="none" stroke="none" pointer-events="all"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 62px; height: 1px; padding-top: 84px; margin-left: 980px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 40px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; "><span style="color: rgb(10, 10, 10); font-family: &quot;Google Sans&quot;, Roboto, Arial, sans-serif; text-align: start;">⚠</span></div></div></div></foreignObject><text x="1011" y="96" fill="#000000" font-family="Georgia" font-size="40px" text-anchor="middle">⚠</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-13" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-13"><g><path d="M 601 571 L 672.76 571" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 678.76 571 L 670.76 575 L 672.76 571 L 670.76 567 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-14" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-14"><g><rect x="121" y="391" width="480" height="240" fill="#FFFBF0" stroke="#D97706" stroke-width="2" pointer-events="all" style="" rx="12" ry="12"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 462px; height: 1px; padding-top: 511px; margin-left: 131px;"><div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">Build a personal blogging platform with full-stack implementation, supporting post creation, commenting, and AI-powered site-wide search and interaction. Use TypeScript for the frontend and Python for the backend... <div><b>- Use `pnpm` to instantiate the ts env...</b></div><div><b>- Use `uv` to create the python project...</b></div><div><b>- No secret should be hardcoded ...</b></div><div><b>- ...</b></div></div></div></div></foreignObject><text x="131" y="517" fill="#000000" font-family="Georgia" font-size="20px">Build a personal blogging platform with full-s...</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-15" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-15"><g><rect x="681" y="541" width="80" height="60" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2" pointer-events="all" style="" rx="14" ry="14"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 62px; height: 1px; padding-top: 571px; margin-left: 690px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">Coding Agent</div></div></div></foreignObject><text x="721" y="577" fill="#000000" font-family="Georgia" font-size="20px" text-anchor="middle">Coding...</text></switch></g></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-3" data-cell-id="onhmrNFCKJ9ztKytadzx-3"><g><path d="M 881.14 431 L 881.05 376.47 L 881.01 329.24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 881 323.24 L 885.01 331.23 L 881.01 329.24 L 877.01 331.24 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-16" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-16"><g><rect x="771" y="431" width="142.86" height="100" fill="#ECFDF5" stroke="#10B981" stroke-width="2" pointer-events="all" style="" rx="12" ry="12"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe center; width: 137px; height: 1px; padding-top: 440px; margin-left: 774px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 11px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">Generated Repo V1</div></div></div></foreignObject><text x="842" y="451" fill="#000000" font-family="Georgia" font-size="11px" text-anchor="middle">Generated Repo V1</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-17" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-17"><g><rect x="781" y="441" width="110" height="80" fill="none" stroke="none" pointer-events="all"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 92px; height: 1px; padding-top: 456px; margin-left: 791px;"><div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; "><div style="display: inline-block; font-size: 11px; font-family: 'Source Code Pro'; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; "><font><span>┌ my_blog/</span></font><div><font><span>├─<span style="background-color: transparent; color: rgb(0, 0, 0);">─ </span><span style="background-color: transparent; color: rgb(0, 0, 0);">frontend/</span></span></font></div><div><font><span>├─<span style="background-color: transparent; color: rgb(0, 0, 0);">─ backend/</span></span></font></div><div><font><span>├<span style="background-color: transparent; color: rgb(0, 0, 0);"></span><span style="background-color: transparent; color: rgb(0, 0, 0);">─</span><span style="background-color: transparent; color: rgb(0, 0, 0);">─ secret.py</span></span></font></div><div><font><span><span style="background-color: transparent;">└</span><span style="background-color: transparent; color: rgb(0, 0, 0);">─</span><span style="background-color: transparent; color: rgb(0, 0, 0);">─ ...</span></span></font></div><div><span style="background-color: transparent; color: rgb(0, 0, 0);"><br /></span></div></div></div></div></foreignObject><text x="791" y="467" fill="#000000" font-family="'Source Code Pro'" font-size="11px">┌ my_blog/...</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-20" data-cell-id="cell-wIYCBMEIZ8Rh3CLxj-Rq-20"><g><path d="M 321 321 L 311.05 321 L 289.24 321" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 283.24 321 L 291.24 317 L 289.24 321 L 291.24 325 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-21" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-21"><g><rect x="321" y="181" width="390" height="170" fill="#F0F9FF" stroke="#0EA5E9" stroke-width="2" pointer-events="all" style="" rx="12" ry="12"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 372px; height: 1px; padding-top: 266px; margin-left: 331px;"><div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; "><div style="text-align: center;"><b style="background-color: transparent; color: rgb(0, 0, 0);">D</b><span style="background-color: transparent; color: rgb(0, 0, 0);">irectory </span><b style="background-color: transparent; color: rgb(0, 0, 0);">P</b><span style="background-color: transparent; color: rgb(0, 0, 0);">redicates (</span><b style="background-color: transparent; color: rgb(0, 0, 0);">DP</b><span style="background-color: transparent; color: rgb(0, 0, 0);">)</span></div><div style="text-align: center;"><span style="background-color: transparent; color: rgb(0, 0, 0);"><br /></span></div><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);"> - DP-10001: use_typescript</span></div><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);"> - DP-10011: uv_python_project</span></div><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);"> - DP-10055: detect_secrets</span></div><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);"> - ... </span></div></div></div></div></foreignObject><text x="331" y="272" fill="#000000" font-family="Georgia" font-size="20px">Directory Predicates (DP)...</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-22" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-22"><g><rect x="181" y="181" width="100" height="60" fill="#E0F2FE" stroke="#0284C7" stroke-width="2" pointer-events="all" style="" rx="12" ry="12"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 82px; height: 1px; padding-top: 211px; margin-left: 190px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">DP Advisor</div></div></div></foreignObject><text x="231" y="217" fill="#000000" font-family="Georgia" font-size="20px" text-anchor="middle">DP Advis...</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-24" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-24"><g><rect x="751" y="291" width="100" height="60" fill="#E0F2FE" stroke="#0284C7" stroke-width="2" pointer-events="all" style="" rx="12" ry="12"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 82px; height: 1px; padding-top: 321px; margin-left: 760px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">DP Checker</div></div></div></foreignObject><text x="801" y="327" fill="#000000" font-family="Georgia" font-size="20px" text-anchor="middle">DP Check...</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-25" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-25"><g><rect x="181" y="291" width="100" height="60" fill="#E0F2FE" stroke="#0284C7" stroke-width="2" pointer-events="all" style="" rx="12" ry="12"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 82px; height: 1px; padding-top: 321px; margin-left: 190px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">DP Enhancer</div></div></div></foreignObject><text x="231" y="327" fill="#000000" font-family="Georgia" font-size="20px" text-anchor="middle">DP Enhan...</text></switch></g></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-26" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-26"><g><path d="M 281 211 L 301.05 211 L 311.98 211.05" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 317.98 211.08 L 309.97 215.04 L 311.98 211.05 L 310 207.04 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-27" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-27"><g><path d="M 231.05 351 L 231.05 371 L 230.97 383.24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 230.93 389.24 L 226.99 381.22 L 230.97 383.24 L 234.99 381.27 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-28" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-28"><g><path d="M 742.76 321 L 712 321" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 748.76 321 L 740.76 325 L 742.76 321 L 740.76 317 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-wIYCBMEIZ8Rh3CLxj-Rq-30" data-cell-id="wIYCBMEIZ8Rh3CLxj-Rq-30"><g><rect x="861" y="195.37" width="160" height="95.63" fill="#F3F0FF" stroke="#A78BFA" stroke-width="2" stroke-dasharray="2 2" pointer-events="all" style="" rx="8" ry="8"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 152px; height: 1px; padding-top: 243px; margin-left: 866px;"><div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; "><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);">- DP-10001 </span><span style="background-color: transparent;"><font face="Source Code Pro">✓</font></span></div><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);">- DP-10011 </span><span style="background-color: transparent;"><font face="Source Code Pro">✓</font></span></div><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);">- DP-10055 </span><span style="background-color: transparent;"><font face="Source Code Pro">✗</font></span></div></div></div></div></foreignObject><text x="866" y="249" fill="#000000" font-family="Georgia" font-size="20px">- DP-10001 ✓...</text></switch></g></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-0" data-cell-id="cell-onhmrNFCKJ9ztKytadzx-0"><g><path d="M 761 570.76 L 871.47 570.79 L 981 571" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-1" data-cell-id="cell-onhmrNFCKJ9ztKytadzx-1"><g><path d="M 851 320.63 L 986.53 320.58 L 1118 320.99" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><ellipse cx="1121" cy="321" rx="2.9999999999999996" ry="2.9999999999999996" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" pointer-events="all" style="fill: #1E293B; stroke: rgb(0, 0, 0);"/></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-2" data-cell-id="cell-onhmrNFCKJ9ztKytadzx-2"><g><path d="M 800.95 539.24 L 800.78 571" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 800.99 533.24 L 804.94 541.26 L 800.95 539.24 L 796.94 541.21 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-4" data-cell-id="cell-onhmrNFCKJ9ztKytadzx-4"><g><path d="M 911 321 L 911 299.24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 911 293.24 L 915 301.24 L 911 299.24 L 907 301.24 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-5" data-cell-id="cell-onhmrNFCKJ9ztKytadzx-5"><g><path d="M 940.81 291 L 940.82 316.75 C 946.02 316.75 946.03 324.75 940.83 324.75 L 940.83 324.75 L 940.99 562.76" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 941 568.76 L 936.99 560.77 L 940.99 562.76 L 944.99 560.76 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-6" data-cell-id="cell-onhmrNFCKJ9ztKytadzx-6"><g><path d="M 1061 391 L 1061 329.24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 1061 323.24 L 1065 331.24 L 1061 329.24 L 1057 331.24 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-9" data-cell-id="cell-onhmrNFCKJ9ztKytadzx-9"><g><rect x="1041" y="195.37" width="160" height="95.63" fill="#F3F0FF" stroke="#A78BFA" stroke-width="2" stroke-dasharray="2 2" pointer-events="all" style="" rx="8" ry="8"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 152px; height: 1px; padding-top: 243px; margin-left: 1046px;"><div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; "><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);">- DP-10001 </span><span style="background-color: transparent;"><font face="Source Code Pro">✓</font></span></div><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);">- DP-10011 </span><span style="background-color: transparent;"><font face="Source Code Pro">✓</font></span></div><div style=""><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);">- DP-10055 </span><span style="font-family: &quot;Source Code Pro&quot;; background-color: transparent; color: rgb(0, 0, 0);">✓</span></div></div></div></div></foreignObject><text x="1046" y="249" fill="#000000" font-family="Georgia" font-size="20px">- DP-10001 ✓...</text></switch></g></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-10" data-cell-id="cell-onhmrNFCKJ9ztKytadzx-10"><g><path d="M 980.95 539.24 L 980.78 571" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 980.99 533.24 L 984.94 541.26 L 980.95 539.24 L 976.94 541.21 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-onhmrNFCKJ9ztKytadzx-11" data-cell-id="cell-onhmrNFCKJ9ztKytadzx-11"><g><path d="M 1091 321 L 1091 299.24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: #94A3B8;"/><path d="M 1091 293.24 L 1095 301.24 L 1091 299.24 L 1087 301.24 Z" fill="#94A3B8" stroke="#94A3B8" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: #94A3B8; stroke: #94A3B8;"/></g></g><g id="cell-yCs3d5fnbmhOc808-Zo2-0" data-cell-id="cell-yCs3d5fnbmhOc808-Zo2-0"><g><rect x="961" y="391" width="200" height="140" fill="#DCFCE7" stroke="#16A34A" stroke-width="2" pointer-events="all" style="" rx="12" ry="12"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe center; width: 182px; height: 1px; padding-top: 406px; margin-left: 970px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 20px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">Generated Repo V2</div></div></div></foreignObject><text x="1061" y="426" fill="#000000" font-family="Georgia" font-size="20px" text-anchor="middle">Generated Repo V2</text></switch></g></g></g><g id="cell-yCs3d5fnbmhOc808-Zo2-1" data-cell-id="cell-yCs3d5fnbmhOc808-Zo2-1"><g><rect x="971" y="421" width="180" height="120" fill="none" stroke="none" pointer-events="all"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 162px; height: 1px; padding-top: 436px; margin-left: 981px;"><div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; "><div style="display: inline-block; font-size: 15px; font-family: 'Source Code Pro'; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; "><font><span>┌ my_blog/</span></font><div><font><span>├─<span style="background-color: transparent; color: rgb(0, 0, 0);">─ </span><span style="background-color: transparent; color: rgb(0, 0, 0);">frontend/</span></span></font></div><div><font><span>├─<span style="background-color: transparent; color: rgb(0, 0, 0);">─ backend/</span></span></font></div><div><font><span>├<span style="background-color: transparent; color: rgb(0, 0, 0);"></span><span style="background-color: transparent; color: rgb(0, 0, 0);">─</span><span style="background-color: transparent; color: rgb(0, 0, 0);">─ readme.md</span></span></font></div><div><font><span><span style="background-color: transparent;">└</span><span style="background-color: transparent; color: rgb(0, 0, 0);">─</span><span style="background-color: transparent; color: rgb(0, 0, 0);">─ ...</span></span></font></div><div><span style="background-color: transparent; color: rgb(0, 0, 0);"><br /></span></div></div></div></div></foreignObject><text x="981" y="451" fill="#000000" font-family="'Source Code Pro'" font-size="15px">┌ my_blog/...</text></switch></g></g></g><g id="cell-yCs3d5fnbmhOc808-Zo2-2" data-cell-id="cell-yCs3d5fnbmhOc808-Zo2-2"><g><rect x="1091" y="441" width="80" height="65" fill="none" stroke="none" pointer-events="all"/></g><g><g transform="scale(0.9999999999999999)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="101%" height="101%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 62px; height: 1px; padding-top: 474px; margin-left: 1100px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; "><div style="display: inline-block; font-size: 40px; font-family: Georgia; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; "><span style="color: rgb(10, 10, 10); font-family: &quot;Google Sans&quot;, Roboto, Arial, sans-serif; text-align: start;">✓</span></div></div></div></foreignObject><text x="1131" y="486" fill="#000000" font-family="Georgia" font-size="40px" text-anchor="middle">✓</text></switch></g></g></g></g></g></g></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="section-label">Why dirp</div>
+    <h2 style="font-size: clamp(24px, 3vw, 36px); font-weight: 800; max-width: 520px;">Main Features</h2>
+    <div class="features-grid">
+
+      <div class="feature-card reveal">
+        <span class="feature-icon">🗣️</span>
+        <h3>Standard Concretization</h3>
+        <p>A shared vocabulary for efficient communication between humans and agents. Express complex engineering requirements as compact, unambiguous DP identifiers.</p>
+        <ul class="feature-steps">
+          <li>
+            <span class="step-num">1</span>
+            <span>Write project prompts with DP IDs: <em>"I want a repo that satisfies DP-10217, DP-10479"</em></span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span>Release plugin standards with predicates: <em>"All submissions must satisfy DP-12176"</em></span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="feature-card reveal">
+        <span class="feature-icon">📐</span>
+        <h3>Convention Enforcement</h3>
+        <p>Give coding agents a machine-checkable specification. Run <code>dp-checker</code> at the end of each loop iteration for verifiable, actionable guarantees on deliverables.</p>
+        <ul class="feature-steps">
+          <li>
+            <span class="step-num">1</span>
+            <span>In your agent loop, always run <code>dp-checker</code> at the end</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span>On failure, feed the error message back to the agent to iterate and fix</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="feature-card reveal">
+        <span class="feature-icon">🔍</span>
+        <h3>Repository Analysis</h3>
+        <p>Understand any repository's characteristics without reading every file. Lite predicates run in milliseconds and produce a structured, token-efficient summary.</p>
+        <ul class="feature-steps">
+          <li>
+            <span class="step-num">1</span>
+            <span>Run all lite predicates on a new repo</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span>Instantly know: <em>"This is a React TS repo with Docker"</em> — satisfies DP-299, DP-43 — without wasting tokens</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Predicate Example ── -->
+<section id="example" class="section">
+  <div class="container">
+    <div class="section-label">Anatomy</div>
+    <h2 style="font-size: clamp(24px, 3vw, 36px); font-weight: 800; max-width: 520px;">Predicate Example</h2>
+    <p style="color: var(--text-muted); font-size: 15px; margin-top: 12px; max-width: 640px;">
+      Hover over a field on the left to highlight the corresponding part in the implementation, and vice versa.
+    </p>
+    <div class="example-layout reveal">
+      <!-- Left: field definitions -->
+      <div class="example-left">
+        <h3>Predicate Fields</h3>
+
+        <div class="dp-field" data-field="dp_id">
+          <div class="dp-field-name">dp_id</div>
+          <div class="dp-field-desc">Assigned during PR, starting from 1000 (1–999 reserved). Use 0 for new predicates.</div>
+        </div>
+
+        <div class="dp-field" data-field="name">
+          <div class="dp-field-name">name</div>
+          <div class="dp-field-desc">A function-name identifier that explains the predicate's meaning in a straightforward way.</div>
+        </div>
+
+        <div class="dp-field" data-field="description">
+          <div class="dp-field-name">description</div>
+          <div class="dp-field-desc">Detailed description including what it checks, why it's important, and relevant context or examples.</div>
+        </div>
+
+        <div class="dp-field" data-field="code">
+          <div class="dp-field-name">code</div>
+          <div class="dp-field-desc">The implementation — a function returning <code>(bool, String)</code>. Returns <code>true</code> if satisfied, with an actionable error message otherwise.</div>
+        </div>
+
+        <div class="dp-field" data-field="after">
+          <div class="dp-field-name">after <span class="badge">optional</span></div>
+          <div class="dp-field-desc">List of <code>dp_id</code>s that must run before this predicate — declares dependencies.</div>
+        </div>
+
+        <div class="dp-field" data-field="lite">
+          <div class="dp-field-name">lite <span class="badge">optional</span></div>
+          <div class="dp-field-desc">Default <code>false</code>. If <code>true</code>, included in the fast lite check. Must run within 10ms, with no external dependencies or side effects.</div>
+        </div>
+
+        <div class="dp-field" data-field="deprecated">
+          <div class="dp-field-name">deprecated <span class="badge">optional</span></div>
+          <div class="dp-field-desc">Default <code>None</code>. If a <code>dp_id</code> is given, this predicate is deprecated and should not be used in new checks.</div>
+        </div>
+      </div>
+
+      <!-- Right: code snippet -->
+      <div class="example-right">
+        <h3>Implementation</h3>
+        <div class="code-block" id="example-code"><div class="code-line"><span class="line-num">1</span><span class="line-content"><span class="tok-kw">use</span> dirp_macro::dp;</span></div>
+<div class="code-line"><span class="line-num">2</span><span class="line-content"><span class="tok-kw">use</span> crate::{DpResults, DpContext};</span></div>
+<div class="code-line"><span class="line-num">3</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">4</span><span class="line-content"><span class="tok-mac">#[dp(</span><span class="code-span tok-attr" data-field="dp_id">id = 10000</span>, <span class="code-span tok-attr" data-field="after">after = [1000]</span>, <span class="code-span tok-attr" data-field="lite">lite = false</span>, <span class="code-span tok-attr" data-field="deprecated">deprecated = None</span><span class="tok-mac">)]</span></span></div>
+<div class="code-line code-span" data-field="description"><span class="line-num">5</span><span class="line-content"><span class="tok-cm">/// # A Rust workspace</span></span></div>
+<div class="code-line code-span" data-field="description"><span class="line-num">6</span><span class="line-content"><span class="tok-cm">/// This predicate checks if the repository is a Rust workspace,</span></span></div>
+<div class="code-line code-span" data-field="description"><span class="line-num">7</span><span class="line-content"><span class="tok-cm">/// which is a common project structure in Rust development.</span></span></div>
+<div class="code-line code-span" data-field="description"><span class="line-num">8</span><span class="line-content"><span class="tok-cm">/// Usually created by running `cargo new --workspace`, a Rust</span></span></div>
+<div class="code-line code-span" data-field="description"><span class="line-num">9</span><span class="line-content"><span class="tok-cm">/// workspace allows multiple related packages to be managed</span></span></div>
+<div class="code-line code-span" data-field="description"><span class="line-num">10</span><span class="line-content"><span class="tok-cm">/// together, sharing dependencies and configuration...</span></span></div>
+<div class="code-line"><span class="line-num">11</span><span class="line-content"><span class="tok-kw">fn</span> <span class="code-span tok-fn" data-field="name">rust_workspace</span>(ctx: &amp;DpContext, prior: &amp;DpResults)</span></div>
+<div class="code-line"><span class="line-num">12</span><span class="line-content">    -&gt; Result&lt;(<span class="tok-kw">bool</span>, String), String&gt; {</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">13</span><span class="line-content">    <span class="tok-kw">if</span> prior.get(&amp;<span class="tok-num">1000</span>) != Some(&amp;Ok(<span class="tok-kw">true</span>)) {</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">14</span><span class="line-content">        <span class="tok-kw">return</span> Ok((<span class="tok-kw">false</span>,</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">15</span><span class="line-content">            <span class="tok-str">"Dependency not satisfied, cargo.toml not found"</span>.into()));</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">16</span><span class="line-content">    }</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">17</span><span class="line-content">    <span class="tok-cm">// ... check for [workspace] in Cargo.toml ...</span></span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">18</span><span class="line-content">    Ok((<span class="tok-kw">true</span>, <span class="tok-str">"Rust workspace verified"</span>.into()))</span></div>
+<div class="code-line"><span class="line-num">19</span><span class="line-content">}</span></div>
+</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Quick Start ── -->
+<section id="quick-start" class="section">
+  <div class="container">
+    <div class="section-label">Get Started</div>
+    <h2 style="font-size: clamp(24px, 3vw, 36px); font-weight: 800;">Quick Start</h2>
+    <p style="color: var(--text-muted); font-size: 15px; margin-top: 12px; max-width: 600px;">
+      Install dirp with a single command, then integrate it into your workflow.
+    </p>
+
+    <div class="install-box reveal">
+      <span class="prompt">$</span>
+      <span class="install-cmd" id="install-cmd">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dirp-dev/install/HEAD/install.sh)"</span>
+      <button class="copy-btn" id="copy-install">Copy</button>
+    </div>
+
+    <div class="reveal">
+      <div class="tabs-header">
+        <button class="tab-btn" data-tab="check">Check DP</button>
+        <button class="tab-btn active" data-tab="agents">Integrate with Coding Agent</button>
+        <button class="tab-btn" data-tab="analyze">Repository Analysis</button>
+      </div>
+
+      <!-- Tab: Check DP -->
+      <div class="tab-panel" id="tab-check">
+        <p class="tab-intro">
+          Manually run DP checks on any repository to verify it meets specific conventions.
+          Useful for CI pipelines, pre-merge checks, and reviewing third-party code.
+        </p>
+        <div class="cmd-box">dirp check [dp_id ...]</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          Runs the specified predicates against the current directory by default. Pass one or more DP IDs to check specific conventions. Exit code is non-zero if any predicate fails, making it easy to integrate into scripts and CI.
+        </p>
+        <table class="flags-table">
+          <thead>
+            <tr><th>Flag</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>--path &lt;dir&gt;</td><td>Run against a specific directory instead of the current working directory.</td></tr>
+            <tr><td>--verbose</td><td>Show detailed output for each predicate, including pass/fail reasons and execution time.</td></tr>
+            <tr><td>--json</td><td>Output results as JSON for programmatic consumption.</td></tr>
+            <tr><td>--all</td><td>Run all registered predicates (including non-lite ones) instead of a specified subset.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tab: Integrate with Coding Agent -->
+      <div class="tab-panel active" id="tab-agents">
+        <p class="tab-intro">
+          Integrate DP checks directly into your coding agent loop for automated quality enforcement.
+          The agent runs, dirp checks the output, and the error message feeds back in — until the repo satisfies all predicates.
+        </p>
+        <div class="agents-layout">
+          <div class="agents-sidebar">
+            <div class="agent-item">🤖 Claude Code</div>
+            <div class="agent-item">⚡ Codex</div>
+            <div class="agent-item">🐙 Copilot</div>
+            <div class="agent-item">♊ Gemini</div>
+            <div class="agent-item">🥧 Pi</div>
+            <div class="agent-item">···</div>
+          </div>
+          <div class="agents-content">
+            <div class="coming-soon-badge">Coming soon</div>
+            <p>Integration guides for all major coding agents are on the way. Star the repo to get notified.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Repository Analysis -->
+      <div class="tab-panel" id="tab-analyze">
+        <p class="tab-intro">
+          Quickly understand a repository's characteristics without reading every file.
+          <code>dirp analyze</code> runs all lite predicates and returns a structured summary — perfect for orienting a new agent or getting a token-efficient overview.
+        </p>
+        <div class="cmd-box">dirp analyze</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          Runs the full set of lite predicates and outputs a structured report of which conventions the repository satisfies. Each lite predicate is guaranteed to complete in under 10ms with no side effects.
+        </p>
+        <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em;">Sample output</p>
+        <div class="output-box"><span class="out-key">Repository:</span> ./my_blog
+<span class="out-key">Analyzed:</span>  47 lite predicates in 312ms
+
+<span class="out-pass">✓ DP-43    use_typescript          TypeScript project detected (tsconfig.json found)</span>
+<span class="out-pass">✓ DP-299   has_dockerfile          Dockerfile found at project root</span>
+<span class="out-pass">✓ DP-10011 uv_python_project       uv-managed Python project (pyproject.toml + .venv)</span>
+<span class="out-fail">✗ DP-10055 detect_secrets          Potential secret found: secret.py contains hardcoded key</span>
+<span class="out-pass">✓ DP-10217 pnpm_workspace          pnpm workspace configuration detected</span>
+···
+
+<span class="out-key">Result:</span>    44/47 passed · 3 failed</div>
+        <table class="flags-table">
+          <thead>
+            <tr><th>Flag</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>--path &lt;dir&gt;</td><td>Analyze a specific directory instead of the current working directory.</td></tr>
+            <tr><td>--verbose</td><td>Show full predicate descriptions alongside results.</td></tr>
+            <tr><td>--json</td><td>Output results as structured JSON for piping into other tools or agents.</td></tr>
+            <tr><td>--failed-only</td><td>Only show predicates that failed, for a focused action list.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <p>
+    <a href="https://github.com/dirp-dev/dirp" target="_blank" rel="noopener">GitHub</a> ·
+    Open Source · Built with ♥
+  </p>
+</footer>
+
+<script>
+(function() {
+  /* ── Theme ── */
+  const root = document.documentElement;
+  const btn  = document.getElementById('theme-toggle');
+  const ICONS = { light: '🌙', dark: '☀️' };
+
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    btn.textContent = ICONS[theme];
+    localStorage.setItem('dirp-theme', theme);
+  }
+
+  // Init
+  const saved = localStorage.getItem('dirp-theme');
+  applyTheme(saved || getSystemTheme());
+
+  btn.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (!localStorage.getItem('dirp-theme')) applyTheme(e.matches ? 'dark' : 'light');
+  });
+
+  /* ── Tabs ── */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+    });
+  });
+
+  /* ── Copy install command ── */
+  const copyBtn = document.getElementById('copy-install');
+  const cmdEl   = document.getElementById('install-cmd');
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(cmdEl.textContent).then(() => {
+      copyBtn.textContent = 'Copied!';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('copied');
+      }, 1800);
+    });
+  });
+
+  /* ── Scroll reveal ── */
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer  = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => observer.observe(el));
+
+  /* ── Predicate example hover interactions ── */
+  const dpFields  = document.querySelectorAll('.dp-field');
+  const codeSpans = document.querySelectorAll('#example-code .code-span');
+
+  dpFields.forEach(field => {
+    const key = field.dataset.field;
+    field.addEventListener('mouseenter', () => {
+      dpFields.forEach(f => f.classList.remove('active'));
+      codeSpans.forEach(s => s.classList.remove('active'));
+      field.classList.add('active');
+      codeSpans.forEach(s => {
+        if (s.dataset.field && s.dataset.field.split(' ').includes(key)) {
+          s.classList.add('active');
+        }
+      });
+    });
+    field.addEventListener('mouseleave', () => {
+      field.classList.remove('active');
+      codeSpans.forEach(s => s.classList.remove('active'));
+    });
+  });
+
+  codeSpans.forEach(span => {
+    span.addEventListener('mouseenter', () => {
+      const keys = (span.dataset.field || '').split(' ');
+      codeSpans.forEach(s => s.classList.remove('active'));
+      dpFields.forEach(f => f.classList.remove('active'));
+      span.classList.add('active');
+      dpFields.forEach(f => {
+        if (keys.includes(f.dataset.field)) f.classList.add('active');
+      });
+    });
+    span.addEventListener('mouseleave', () => {
+      span.classList.remove('active');
+      dpFields.forEach(f => f.classList.remove('active'));
+    });
+  });
+
+  /* ── dp-demo2 SVG animation ── */
+  (function initDemoAnimation() {
+    document.querySelectorAll('#demo-svg-wrapper a').forEach(a => {
+      while (a.firstChild) a.parentNode.insertBefore(a.firstChild, a);
+      a.parentNode.removeChild(a);
+    });
+
+    const groups = Array.from(document.querySelectorAll('#demo-svg-wrapper [data-cell-id]'));
+    groups.forEach((g, i) => {
+      const hasShape = g.querySelector(':scope > g > rect, :scope > g > ellipse') ||
+                       g.querySelector('rect, ellipse');
+      const hasArrow = !hasShape && g.querySelector('path[fill="none"]');
+      const delay    = i * 35;
+
+      if (hasShape) {
+        g.classList.add('dp2-cell-shape');
+        g.style.animationDelay = delay + 'ms';
+        const txt = g.querySelector('text');
+        if (txt && txt.textContent.includes('Coding')) {
+          g.classList.add('dp2-coding-pulse');
+          g.style.setProperty('--delay', delay + 'ms');
+        }
+      } else if (hasArrow) {
+        g.classList.add('dp2-cell-arrow');
+        g.style.animationDelay = delay + 'ms';
+        g.querySelectorAll('path[fill="none"]').forEach(p => {
+          try {
+            const len = Math.ceil(p.getTotalLength());
+            p.style.strokeDasharray = len;
+            p.style.strokeDashoffset = len;
+            p.style.setProperty('--flow-dur', '0.7s');
+            p.style.setProperty('--flow-delay', delay + 'ms');
+          } catch(e) {}
+        });
+      } else {
+        g.style.opacity = '0';
+        g.style.animation = `dp2-fadeUp 0.45s ease ${delay}ms forwards`;
+      }
+    });
+  })();
+})();
+</script>
+</body>
+</html>
