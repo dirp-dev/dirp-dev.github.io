@@ -579,17 +579,24 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
     }
+    .agent-item:hover { background: var(--bg-code); }
+    .agent-item.active { background: var(--bg-card); color: var(--text); font-weight: 600; }
     .agent-item:last-child { border-bottom: none; }
     .agents-content {
       flex: 1;
-      padding: 32px;
+      padding: 24px 28px;
+      min-height: 200px;
+      overflow-x: auto;
+    }
+    .agents-content.centered {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      min-height: 200px;
     }
     .coming-soon-badge {
       display: inline-block;
@@ -761,9 +768,9 @@
       <div class="example-left">
         <h3>Predicate Fields</h3>
 
-        <div class="dp-field" data-field="dp_id">
-          <div class="dp-field-name">dp_id</div>
-          <div class="dp-field-desc">Assigned during PR, starting from 1000 (1–999 reserved). Use 0 for new predicates.</div>
+        <div class="dp-field" data-field="id">
+          <div class="dp-field-name">id</div>
+          <div class="dp-field-desc">Unique integer ID, starting from 1000 (0–999 reserved). Required.</div>
         </div>
 
         <div class="dp-field" data-field="name">
@@ -778,7 +785,7 @@
 
         <div class="dp-field" data-field="code">
           <div class="dp-field-name">code</div>
-          <div class="dp-field-desc">The implementation — a function returning <code>(bool, String)</code>. Returns <code>true</code> if satisfied, with an actionable error message otherwise.</div>
+          <div class="dp-field-desc">The implementation — a function returning <code>DpResult</code> (<code>Result&lt;DpOutcome, String&gt;</code>). Use <code>.into()</code> to convert booleans or tuples.</div>
         </div>
 
         <div class="dp-field" data-field="after">
@@ -793,7 +800,7 @@
 
         <div class="dp-field" data-field="deprecated">
           <div class="dp-field-name">deprecated <span class="badge">optional</span></div>
-          <div class="dp-field-desc">Default <code>None</code>. If a <code>dp_id</code> is given, this predicate is deprecated and should not be used in new checks.</div>
+          <div class="dp-field-desc">Default <code>None</code>. ID of the replacement predicate (marks this one as deprecated).</div>
         </div>
       </div>
 
@@ -801,24 +808,21 @@
       <div class="example-right">
         <h3>Implementation</h3>
         <div class="code-block" id="example-code"><div class="code-line"><span class="line-num">1</span><span class="line-content"><span class="tok-kw">use</span> dirp_macro::dp;</span></div>
-<div class="code-line"><span class="line-num">2</span><span class="line-content"><span class="tok-kw">use</span> crate::{DpResults, DpContext};</span></div>
-<div class="code-line"><span class="line-num">3</span><span class="line-content"></span></div>
-<div class="code-line"><span class="line-num">4</span><span class="line-content"><span class="tok-mac">#[dp(</span><span class="code-span tok-attr" data-field="dp_id">id = 10000</span>, <span class="code-span tok-attr" data-field="after">after = [1000]</span>, <span class="code-span tok-attr" data-field="lite">lite = false</span>, <span class="code-span tok-attr" data-field="deprecated">deprecated = None</span><span class="tok-mac">)]</span></span></div>
-<div class="code-line code-span" data-field="description"><span class="line-num">5</span><span class="line-content"><span class="tok-cm">/// # A Rust workspace</span></span></div>
-<div class="code-line code-span" data-field="description"><span class="line-num">6</span><span class="line-content"><span class="tok-cm">/// This predicate checks if the repository is a Rust workspace,</span></span></div>
-<div class="code-line code-span" data-field="description"><span class="line-num">7</span><span class="line-content"><span class="tok-cm">/// which is a common project structure in Rust development.</span></span></div>
-<div class="code-line code-span" data-field="description"><span class="line-num">8</span><span class="line-content"><span class="tok-cm">/// Usually created by running `cargo new --workspace`, a Rust</span></span></div>
-<div class="code-line code-span" data-field="description"><span class="line-num">9</span><span class="line-content"><span class="tok-cm">/// workspace allows multiple related packages to be managed</span></span></div>
-<div class="code-line code-span" data-field="description"><span class="line-num">10</span><span class="line-content"><span class="tok-cm">/// together, sharing dependencies and configuration...</span></span></div>
-<div class="code-line"><span class="line-num">11</span><span class="line-content"><span class="tok-kw">fn</span> <span class="code-span tok-fn" data-field="name">rust_workspace</span>(ctx: &amp;DpContext, prior: &amp;DpResults)</span></div>
-<div class="code-line"><span class="line-num">12</span><span class="line-content">    -&gt; Result&lt;(<span class="tok-kw">bool</span>, String), String&gt; {</span></div>
-<div class="code-line code-span" data-field="code"><span class="line-num">13</span><span class="line-content">    <span class="tok-kw">if</span> prior.get(&amp;<span class="tok-num">1000</span>) != Some(&amp;Ok(<span class="tok-kw">true</span>)) {</span></div>
-<div class="code-line code-span" data-field="code"><span class="line-num">14</span><span class="line-content">        <span class="tok-kw">return</span> Ok((<span class="tok-kw">false</span>,</span></div>
-<div class="code-line code-span" data-field="code"><span class="line-num">15</span><span class="line-content">            <span class="tok-str">"Dependency not satisfied, cargo.toml not found"</span>.into()));</span></div>
-<div class="code-line code-span" data-field="code"><span class="line-num">16</span><span class="line-content">    }</span></div>
-<div class="code-line code-span" data-field="code"><span class="line-num">17</span><span class="line-content">    <span class="tok-cm">// ... check for [workspace] in Cargo.toml ...</span></span></div>
-<div class="code-line code-span" data-field="code"><span class="line-num">18</span><span class="line-content">    Ok((<span class="tok-kw">true</span>, <span class="tok-str">"Rust workspace verified"</span>.into()))</span></div>
-<div class="code-line"><span class="line-num">19</span><span class="line-content">}</span></div>
+<div class="code-line"><span class="line-num">2</span><span class="line-content"><span class="tok-kw">use</span> crate::{DpContext, DpResult};</span></div>
+<div class="code-line"><span class="line-num">3</span><span class="line-content"><span class="tok-kw">use</span> std::collections::HashMap;</span></div>
+<div class="code-line"><span class="line-num">4</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">5</span><span class="line-content"><span class="tok-mac">#[dp(</span><span class="code-span tok-attr" data-field="id">id = 10000</span>, <span class="code-span tok-attr" data-field="after">after = [1000]</span>, <span class="code-span tok-attr" data-field="lite">lite = false</span><span class="tok-mac">)]</span></span></div>
+<div class="code-line code-span" data-field="description"><span class="line-num">6</span><span class="line-content"><span class="tok-cm">/// A Rust workspace</span></span></div>
+<div class="code-line"><span class="line-num">7</span><span class="line-content"><span class="tok-kw">fn</span> <span class="code-span tok-fn" data-field="name">rust_workspace</span>(ctx: &amp;DpContext, prior: &amp;HashMap&lt;u32, DpResult&gt;) -&gt; DpResult {</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">8</span><span class="line-content">    <span class="tok-kw">match</span> prior.get(&amp;<span class="tok-num">1000</span>) {</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">9</span><span class="line-content">        Some(Ok(outcome)) <span class="tok-kw">if</span> !outcome.verdict =&gt;</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">10</span><span class="line-content">            <span class="tok-kw">return</span> Ok((<span class="tok-kw">false</span>, <span class="tok-str">"no Cargo.toml"</span>).into()),</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">11</span><span class="line-content">        Some(Err(e)) =&gt; <span class="tok-kw">return</span> Err(format!(<span class="tok-str">"dependency dp-1000 failed: {e}"</span>)),</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">12</span><span class="line-content">        _ =&gt; {}</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">13</span><span class="line-content">    }</span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">14</span><span class="line-content">    <span class="tok-cm">// ...</span></span></div>
+<div class="code-line code-span" data-field="code"><span class="line-num">15</span><span class="line-content">    Ok(<span class="tok-kw">true</span>.into())</span></div>
+<div class="code-line"><span class="line-num">16</span><span class="line-content">}</span></div>
 </div>
       </div>
     </div>
@@ -878,14 +882,46 @@
         </p>
         <div class="agents-layout">
           <div class="agents-sidebar">
-            <div class="agent-item">🤖 Claude Code</div>
-            <div class="agent-item">⚡ Codex</div>
-            <div class="agent-item">🐙 Copilot</div>
-            <div class="agent-item">♊ Gemini</div>
-            <div class="agent-item">🥧 Pi</div>
-            <div class="agent-item">···</div>
+            <div class="agent-item active" data-agent="claude">🤖 Claude Code</div>
+            <div class="agent-item" data-agent="codex">⚡ Codex</div>
+            <div class="agent-item" data-agent="copilot">🐙 Copilot</div>
+            <div class="agent-item" data-agent="gemini">♊ Gemini</div>
+            <div class="agent-item" data-agent="pi">🥧 Pi</div>
+            <div class="agent-item" data-agent="other">···</div>
           </div>
-          <div class="agents-content">
+          <div class="agents-content" id="agent-content-claude">
+            <p style="font-size: 13px; color: var(--text-muted); text-align: left; margin-bottom: 16px;">
+              dirp can run as a <a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank" rel="noopener" style="color: var(--accent);">Claude Code Stop hook</a> to automatically check predicates when Claude finishes responding. If any predicates fail, Claude is blocked from stopping and receives feedback to fix the issues.
+            </p>
+            <p style="font-size: 13px; color: var(--text-muted); text-align: left; margin-bottom: 12px;">
+              Add the following to your <code>.claude/settings.json</code> (project-level) or <code>~/.claude/settings.json</code> (user-level):
+            </p>
+            <div class="output-box" style="text-align: left; line-height: 1.6; margin-bottom: 16px;">{
+  <span class="out-key">"hooks"</span>: {
+    <span class="out-key">"Stop"</span>: [
+      {
+        <span class="out-key">"matcher"</span>: "",
+        <span class="out-key">"hooks"</span>: [
+          {
+            <span class="out-key">"type"</span>: "command",
+            <span class="out-key">"command"</span>: "dirp cc-hook dp-1000 dp-1001 dp-1002"
+          }
+        ]
+      }
+    ]
+  }
+}</div>
+            <p style="font-size: 13px; color: var(--text-muted); text-align: left; margin-bottom: 12px;">
+              Replace the predicate IDs with the ones you want to enforce. When any of the specified predicates fail, Claude will see a message like:
+            </p>
+            <div class="output-box" style="text-align: left; line-height: 1.6;">The following directory predicates failed:
+
+<span class="out-fail">- dp-1000 (has_cargo_toml): FAIL</span>
+  Description: Directory contains a Cargo.toml file, indicating a Rust project
+
+<span class="out-key">0/1 predicates passed.</span> Please fix the failing predicates before finishing.</div>
+          </div>
+          <div class="agents-content centered" id="agent-content-other" style="display: none;">
             <div class="coming-soon-badge">Coming soon</div>
             <p>Integration guides for all major coding agents are on the way. Star the repo to get notified.</p>
           </div>
@@ -976,6 +1012,25 @@
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('tab-' + tab).classList.add('active');
+    });
+  });
+
+  /* ── Agent sidebar switching ── */
+  const agentItems = document.querySelectorAll('.agent-item[data-agent]');
+  const agentClaude = document.getElementById('agent-content-claude');
+  const agentOther  = document.getElementById('agent-content-other');
+
+  agentItems.forEach(item => {
+    item.addEventListener('click', () => {
+      agentItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      if (item.dataset.agent === 'claude') {
+        agentClaude.style.display = '';
+        agentOther.style.display = 'none';
+      } else {
+        agentClaude.style.display = 'none';
+        agentOther.style.display = '';
+      }
     });
   });
 
